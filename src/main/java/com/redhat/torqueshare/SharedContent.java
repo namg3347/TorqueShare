@@ -11,7 +11,8 @@ import java.time.Instant;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Document(collation = "content")
+@NoArgsConstructor
+@Document(collection = "content")
 public class SharedContent {
 
     @Id
@@ -27,6 +28,9 @@ public class SharedContent {
 
     @Indexed(expireAfter = "0")
     private Instant expiryDate;
+
+    @Builder.Default
+    private SharedContentStatus status = SharedContentStatus.PENDING; // PENDING, ACTIVE, or EXPIRED
 
     private Instant createdAt;     // For auditing and logging tracking
     private long fileSize;         // to show the user about the file size
