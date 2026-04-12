@@ -4,6 +4,13 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
+    redis:
+      url: ${REDIS_URL}
+  mongodb:
+    uri: ${MONGODB_URI}
+    database: torque-share-db
+
+
 
 
 aws:
@@ -11,4 +18,4 @@ aws:
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
     region: ${AWS_REGION_CODE}
-    bucket-name: ${AWS_BUCKET_NAME}
+    bucketName: ${AWS_BUCKET_NAME}

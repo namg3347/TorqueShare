@@ -1,46 +1,47 @@
 package com.redhat.torqueshare.configs;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
+@RequiredArgsConstructor
 public class S3Config {
-    @Value("${aws.s3.access-key}")
-    private String accessKey;
 
-    @Value("${aws.s3.secret-key}")
-    private String secretKey;
-
-    @Value("${aws.s3.region}")
-    private String regionName;
+    private final S3Properties properties;
 
     @Bean
-    public S3Client s3Client() {
-        AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+    public AwsCredentialsProvider awsCredentialsProvider() {
+        return DefaultCredentialsProvider.create();
+    }
 
-        if(regionName==null || regionName.isEmpty()) {
-            regionName = "ap-south-1";
-        }
+    @Bean
+    public Region awsRegion() {
+        String region = (properties.region() == null || properties.region().isBlank())
+                ? "ap-south-1"
+                : properties.region();
 
+        return Region.of(region);
+    }
+
+    @Bean
+    public S3Client s3Client(AwsCredentialsProvider credentialsProvider, Region region) {
         return S3Client.builder()
-                .region(Region.of(regionName))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .region(region)
+                .credentialsProvider(credentialsProvider)
                 .build();
     }
 
     @Bean(destroyMethod = "close")
-    public S3Presigner s3Presigner() {
-        AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+    public S3Presigner s3Presigner(AwsCredentialsProvider credentialsProvider, Region region) {
         return S3Presigner.builder()
-                .region(Region.of(regionName))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .region(region)
+                .credentialsProvider(credentialsProvider)
                 .build();
     }
 }

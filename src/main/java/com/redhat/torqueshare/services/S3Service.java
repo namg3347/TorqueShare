@@ -1,34 +1,34 @@
 package com.redhat.torqueshare.services;
 
+import com.redhat.torqueshare.configs.S3Properties;
+import com.redhat.torqueshare.exceptions.FileTypeNotAllowedException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class S3Service {
 
-    private final S3Client s3Client;
     private final S3Presigner s3Presigner;
-
-    @Value("${aws.s3.bucket-name}")
-    private String bucketName;
+    private final S3Properties properties;
+    Set<String> allowed = Set.of("image/png", "image/jpeg", "application/pdf");
 
     // generates a upload url using s3presigner where user will upload
-    public String generateUploadUrl(String slug, String contentType) {
+    public String generateUploadUrl(String key, String contentType) {
+        if (!allowed.contains(contentType)) {
+            throw new FileTypeNotAllowedException();
+        }
         PutObjectRequest objectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(slug)
+                .bucket(properties.bucketName())
+                .key(key)
                 .contentType(contentType)
                 .build();
 
@@ -41,10 +41,10 @@ public class S3Service {
     }
 
     //generates a download url where user can download
-    public String generateDownloadUrl(String slug) {
+    public String generateDownloadUrl(String key) {
         GetObjectRequest objectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(slug)
+                .bucket(properties.bucketName())
+                .key(key)
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
@@ -54,18 +54,5 @@ public class S3Service {
 
         return s3Presigner.presignGetObject(presignRequest).url().toString();
     }
-
-//    //check if a file exists in s3 with given slug name
-//    public boolean doesFileExist(String slug) {
-//        try {
-//            s3Client.headObject(HeadObjectRequest.builder()
-//                    .bucket(bucketName)
-//                    .key(slug)
-//                    .build());
-//            return true;
-//        } catch (S3Exception e) {
-//            return false;
-//        }
-//    }
 
 }

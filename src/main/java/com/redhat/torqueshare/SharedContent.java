@@ -11,7 +11,6 @@ import java.time.Instant;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
 @Document(collection = "content")
 public class SharedContent {
 
@@ -34,6 +33,10 @@ public class SharedContent {
 
     private Instant createdAt;     // For auditing and logging tracking
     private long fileSize;         // to show the user about the file size
+
+    private Instant uploadedAt;      //null until file is uploaded in s3
+
+
 
 
 }
