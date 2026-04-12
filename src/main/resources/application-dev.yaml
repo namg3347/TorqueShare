@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: torqueshare
+  data:
+    mongodb:
+      auto-index-creation: true
+
+
+aws:
+  s3:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    region: ${AWS_REGION_CODE}
+    bucket-name: ${AWS_BUCKET_NAME}
