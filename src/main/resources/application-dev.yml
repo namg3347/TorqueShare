@@ -10,6 +10,11 @@ spring:
     uri: ${MONGODB_URI}
     database: torque-share-db
 
+  kafka:
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
 
 
 

@@ -23,4 +23,7 @@ public interface SharedContentRepository extends MongoRepository<SharedContent,S
             SharedContentStatus status,
             Instant time
     );
+
+    // gives list of all content with a certain status
+    List<SharedContent> findByStatus(SharedContentStatus status);
 }

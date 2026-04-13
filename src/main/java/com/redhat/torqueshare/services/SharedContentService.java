@@ -7,7 +7,9 @@ import com.redhat.torqueshare.SharedContentRepository;
 import com.redhat.torqueshare.SharedContentStatus;
 import com.redhat.torqueshare.dto.UploadContentRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -16,12 +18,12 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SharedContentService {
 
     private final SharedContentRepository repository;
-    private final S3Service s3Service;
 
-
+    // not thread safe to be worked on
     public String createSlug(String word) {
         Slugify slugify = Slugify.builder().build();
         String baseSlug = slugify.slugify(word);
@@ -52,6 +54,8 @@ public class SharedContentService {
         return repository.save(sharedContent);
     }
 
+
+    // mongodb query for content metadata
     @Cacheable(value = "shared_content", key = "#slug",
     unless = "#result == null || #result.expiryDate.isBefore(T(java.time.Instant).now())") //redis
     public SharedContent getSharedContent(String slug) {
@@ -59,17 +63,19 @@ public class SharedContentService {
                 .orElseThrow(ContentNotFoundException::new);
 
         if (content.getStatus() != SharedContentStatus.ACTIVE) {
+            log.error("Shared content status not available");
             throw new ContentNotFoundException();
         }
 
         if (content.getExpiryDate().isBefore(Instant.now())) {
+            log.error("Shared content expired");
             throw new ContentNotFoundException();
         }
 
         return content;
     }
 
-    // marks active to all the successful upload
+    // marks active to successful upload for given s3 key
     public void markUploadComplete(String s3Key) {
 
         SharedContent content = repository.findByS3Key(s3Key)
@@ -83,8 +89,21 @@ public class SharedContentService {
         repository.save(content);
     }
 
-    // marks failed to all the content that are still pending even after 15 mins
-    public void markFailedUploads() {
+    //marks failure to unsuccessful upload for given s3 key
+    public void markUploadFailure(String s3Key) {
+
+        SharedContent content = repository.findByS3Key(s3Key)
+                .orElseThrow(ContentNotFoundException::new);
+
+        if (content.getStatus() == SharedContentStatus.FAILED) return;
+        content.setStatus(SharedContentStatus.FAILED);
+        repository.save(content);
+    }
+
+    // all the failed marked entries are marked expired as per schedule(half a day)
+    @Scheduled(fixedDelay = 60000)
+    public void cleanupFailed() {
+
         Instant threshold = Instant.now().minus(Duration.ofMinutes(15));
 
         repository.findByStatusAndCreatedAtBefore(
