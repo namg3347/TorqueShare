@@ -1,5 +1,6 @@
 package com.redhat.torqueshare;
 
+import com.redhat.torqueshare.entities.SharedContent;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

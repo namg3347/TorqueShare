@@ -4,11 +4,13 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
+      uri: ${MONGODB_URI}
+      database: torque-share-db
+
     redis:
       url: ${REDIS_URL}
-  mongodb:
-    uri: ${MONGODB_URI}
-    database: torque-share-db
+
+
 
   kafka:
     consumer:

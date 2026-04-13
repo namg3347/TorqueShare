@@ -1,6 +1,6 @@
 package com.redhat.torqueshare.services;
 
-import com.redhat.torqueshare.SharedContent;
+import com.redhat.torqueshare.entities.SharedContent;
 import com.redhat.torqueshare.SharedContentRepository;
 import com.redhat.torqueshare.SharedContentStatus;
 import com.redhat.torqueshare.events.UploadCompletedEvent;

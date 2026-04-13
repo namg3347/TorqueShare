@@ -2,7 +2,7 @@ package com.redhat.torqueshare.services;
 
 import com.github.slugify.Slugify;
 import com.redhat.torqueshare.exceptions.ContentNotFoundException;
-import com.redhat.torqueshare.SharedContent;
+import com.redhat.torqueshare.entities.SharedContent;
 import com.redhat.torqueshare.SharedContentRepository;
 import com.redhat.torqueshare.SharedContentStatus;
 import com.redhat.torqueshare.dto.UploadContentRequest;
