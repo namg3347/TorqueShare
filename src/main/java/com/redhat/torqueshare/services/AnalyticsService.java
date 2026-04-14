@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -17,12 +18,13 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @RequiredArgsConstructor
 @Slf4j
 public class AnalyticsService {
+
     private final MongoTemplate mongoTemplate;
     private static final String GLOBAL_ID = "Global";
 
-    //@KafkaListener(topics = "s3.upload.completed", groupId = "analytics-service")
+    @KafkaListener(topics = "torque-share-kafka", groupId = "analytics-service")
     public void consume(UploadCompletedEvent event) {
-
+        log.info("Received upload completed event in analysis-service");
         //IDEMPOTENCY
         try {
             mongoTemplate.insert(
@@ -36,16 +38,21 @@ public class AnalyticsService {
         }
 
         //ATOMIC(CONCURRENT) UPDATE
+
         Update update = new Update()
+                //total upload update
                 .inc("totalUploads", 1)
                 .inc("totalSize", event.getExpectedSize());
 
         String type = event.getExpectedContentType();
 
+        //image upload update
         if(type.startsWith("image/")) {
             update.inc("imageUploads", 1);
             update.inc("imageSize", event.getExpectedSize());
         }
+
+        //file upload update
         else if(type.equals("application/pdf")) {
             update.inc("fileUploads", 1);
             update.inc("fileSize", event.getExpectedSize());

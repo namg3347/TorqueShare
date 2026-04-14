@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: torqueshare
+  data:
+    mongodb:
+      auto-index-creation: true
+      uri: ${MONGODB_URI}
+      database: torque-share-db
+
+    redis:
+      url: ${REDIS_URL}
+      ssl:
+        enabled: true
+
+  kafka:
+    bootstrap-servers: pkc-9q8rv.ap-south-2.aws.confluent.cloud:9092
+    properties:
+      spring.json.trusted.packages: "*"
+      sasl:
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required
+            username='${KAFKA_API_KEY}' password='${KAFKA_API_SECRET}';
+        mechanism: PLAIN
+      session:
+        timeout:
+          ms: '45000'
+      security:
+        protocol: SASL_SSL
+
+
+
+    consumer:
+      group-id: validation-analytics
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      properties:
+        spring.json.value.default.type: com.redhat.torqueshare.events.UploadCompletedEvent
+
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+      acks: all
+      retries: 5
+
+      properties:
+        linger.ms: 10
+        batch.size: 16384
+
+
+logging:
+  level:
+    org.apache.kafka: INFO
+    org.springframework.kafka: DEBUG
+
+
+aws:
+  s3:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    region: ${AWS_REGION_CODE}
+    bucketName: ${AWS_BUCKET_NAME}

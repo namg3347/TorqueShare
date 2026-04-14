@@ -7,6 +7,7 @@ import com.redhat.torqueshare.events.UploadCompletedEvent;
 import com.redhat.torqueshare.exceptions.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 
@@ -25,9 +26,9 @@ public class ValidationService {
     private static final Set<String> ALLOWED_TYPES =
             Set.of("image/png", "image/jpeg", "application/pdf");
 
-    //@KafkaListener(topics = "s3.upload.completed", groupId = "validation-service")
+    @KafkaListener(topics = "torque-share-kafka", groupId = "validation-service")
     public void validate(UploadCompletedEvent event) {
-
+        log.info("Received upload completed event in validation-service");
         try {
 
             process(event);
