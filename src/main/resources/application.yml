@@ -52,11 +52,16 @@ spring:
         linger.ms: 10
         batch.size: 16384
 
-
+# logging the kafka
 logging:
   level:
     org.apache.kafka: INFO
     org.springframework.kafka: DEBUG
+
+
+# Tells Spring to look at X-Forwarded-For headers automatically
+server:
+  forward-headers-strategy: framework
 
 
 aws:

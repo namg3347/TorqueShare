@@ -20,6 +20,7 @@ public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 
+        //redis serializer to convert pozo to json
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
 
         RedisSerializationContext.SerializationPair<Object> pair =
@@ -27,7 +28,7 @@ public class RedisConfig {
 
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeValuesWith(pair)
-                .entryTtl(Duration.ofMinutes(10)) // enforce TTL (adjust per use-case)
+                .entryTtl(Duration.ofMinutes(10)) // enforced TTL
                 .disableCachingNullValues();
 
         return RedisCacheManager.builder(connectionFactory)

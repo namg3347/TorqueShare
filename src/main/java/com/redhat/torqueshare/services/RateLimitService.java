@@ -4,9 +4,7 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
-import io.lettuce.core.RedisClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -16,24 +14,21 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class RateLimitService {
 
-    private final RedisConnectionFactory redisConnectionFactory;
+    private final LettuceBasedProxyManager<byte[]> proxyManager;
 
-    // We use a ProxyManager to handle the Redis communication
-    private LettuceBasedProxyManager<byte[]> getProxyManager() {
-        return LettuceBasedProxyManager.builderFor((RedisClient) redisConnectionFactory)
-                .build();
-    }
-
+    /* uses ip got from user to supply a bucket config and return the bucket instance
+        use ip as key
+     */
     public Bucket resolveBucket(String ipAddress) {
-        // limit: 10 tokens per 1 hour
+
         Supplier<BucketConfiguration> configSupplier = () -> BucketConfiguration.builder()
                 .addLimit(Bandwidth.builder()
-                        .capacity(10)
+                        .capacity(5)
                         .refillIntervally(10, Duration.ofHours(1))
                         .build())
                 .build();
 
-        // IP connected to specific bucket in redis
-        return getProxyManager().builder().build(ipAddress.getBytes(), configSupplier);
+        return proxyManager.builder()
+                .build(("RateLimit:"+ipAddress).getBytes(), configSupplier);
     }
 }
