@@ -53,7 +53,7 @@ public class AnalyticsService {
         }
 
         //file upload update
-        else if(type.equals("application/pdf")) {
+        else if(type.startsWith("application/")) {
             update.inc("fileUploads", 1);
             update.inc("fileSize", event.getExpectedSize());
         }

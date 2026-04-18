@@ -25,7 +25,9 @@ public class S3Service {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final S3Properties properties;
-    Set<String> allowed = Set.of("image/png", "image/jpeg", "application/pdf");
+    Set<String> allowed =
+            Set.of("image/png", "image/jpeg", "application/pdf","application/zip","application/octet-stream");
+
 
     // generates a upload url using s3presigner where user will upload
     public String generateUploadUrl(String key, String contentType) {

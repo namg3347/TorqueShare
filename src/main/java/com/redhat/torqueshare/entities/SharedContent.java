@@ -1,6 +1,6 @@
 package com.redhat.torqueshare.entities;
 
-import com.redhat.torqueshare.SharedContentStatus;
+import com.redhat.torqueshare.enums.SharedContentStatus;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;

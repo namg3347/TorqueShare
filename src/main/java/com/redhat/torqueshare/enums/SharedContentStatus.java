@@ -1,4 +1,4 @@
-package com.redhat.torqueshare;
+package com.redhat.torqueshare.enums;
 
 public enum SharedContentStatus {
     PENDING,

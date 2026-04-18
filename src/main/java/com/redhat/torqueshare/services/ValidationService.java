@@ -1,8 +1,8 @@
 package com.redhat.torqueshare.services;
 
 import com.redhat.torqueshare.entities.SharedContent;
-import com.redhat.torqueshare.SharedContentRepository;
-import com.redhat.torqueshare.SharedContentStatus;
+import com.redhat.torqueshare.repositories.SharedContentRepository;
+import com.redhat.torqueshare.enums.SharedContentStatus;
 import com.redhat.torqueshare.events.UploadCompletedEvent;
 import com.redhat.torqueshare.exceptions.*;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class ValidationService {
     private final SharedContentRepository repository;
     private final SharedContentService  sharedContentService;
     private static final Set<String> ALLOWED_TYPES =
-            Set.of("image/png", "image/jpeg", "application/pdf");
+            Set.of("image/png", "image/jpeg", "application/pdf","application/zip","application/octet-stream");
 
     @KafkaListener(topics = "torque-share-kafka", groupId = "validation-service")
     public void validate(UploadCompletedEvent event) {
