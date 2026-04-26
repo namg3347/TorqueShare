@@ -100,7 +100,7 @@ public class SharedContentService {
         repository.save(content);
     }
 
-    // all the failed marked entries are marked expired as per schedule(half a day)
+    // all the failed marked entries are marked expired U(every minute)
     @Scheduled(fixedDelay = 60000)
     public void cleanupFailed() {
 
