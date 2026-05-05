@@ -8,6 +8,7 @@ import com.redhat.torqueshare.enums.SharedContentStatus;
 import com.redhat.torqueshare.dto.UploadContentRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -76,6 +77,8 @@ public class SharedContentService {
     }
 
     // marks active to successful upload for given s3 key
+    // evicts the cache that is getting updated
+    @CacheEvict(value = "shared_content", key = "#slug")
     public void markUploadComplete(String s3Key) {
 
         SharedContent content = repository.findByS3Key(s3Key)
