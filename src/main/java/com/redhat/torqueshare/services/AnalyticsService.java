@@ -11,6 +11,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -20,6 +24,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class AnalyticsService {
 
     private final MongoTemplate mongoTemplate;
+    private final S3Service s3Service;
     private static final String GLOBAL_ID = "Global";
 
     @KafkaListener(topics = "torque-share-kafka", groupId = "analytics-service")
@@ -37,25 +42,30 @@ public class AnalyticsService {
             return;
         }
 
-        //ATOMIC(CONCURRENT) UPDATE
+        String decodedKey = URLDecoder.decode(event.getS3Key(), StandardCharsets.UTF_8);
 
+        HeadObjectResponse head = s3Service.getHeadObjectResponse(decodedKey);
+
+        long size =head.contentLength();
+        String type = head.contentType();
+
+        //ATOMIC(CONCURRENT) UPDATE
         Update update = new Update()
                 //total upload update
                 .inc("totalUploads", 1)
-                .inc("totalSize", event.getExpectedSize());
+                .inc("totalSize",size);
 
-        String type = event.getExpectedContentType();
 
         //image upload update
         if(type.startsWith("image/")) {
             update.inc("imageUploads", 1);
-            update.inc("imageSize", event.getExpectedSize());
+            update.inc("imageSize", size);
         }
 
         //file upload update
         else if(type.startsWith("application/")) {
             update.inc("fileUploads", 1);
-            update.inc("fileSize", event.getExpectedSize());
+            update.inc("fileSize", size);
         }
 
         mongoTemplate.upsert(
