@@ -25,8 +25,8 @@ public class RateLimitService {
         log.info("making bucket request for ip : {}", ipAddress);
         Supplier<BucketConfiguration> configSupplier = () -> BucketConfiguration.builder()
                 .addLimit(Bandwidth.builder()
-                        .capacity(5)
-                        .refillIntervally(10, Duration.ofHours(1))
+                        .capacity(10)
+                        .refillIntervally(5, Duration.ofHours(1))
                         .build())
                 .build();
 

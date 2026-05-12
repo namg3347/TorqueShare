@@ -10,7 +10,7 @@ spring:
     redis:
       url: ${REDIS_URL}
       ssl:
-        enabled: true
+        enabled: false
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
@@ -52,12 +52,6 @@ spring:
         linger.ms: 10
         batch.size: 16384
 
-# logging the kafka
-logging:
-  level:
-    org.apache.kafka: INFO
-    org.springframework.kafka: DEBUG
-
 
 # Tells Spring to look at X-Forwarded-For headers automatically
 server:
@@ -66,7 +60,5 @@ server:
 
 aws:
   s3:
-    access-key: ${AWS_ACCESS_KEY}
-    secret-key: ${AWS_SECRET_KEY}
     region: ${AWS_REGION_CODE}
     bucketName: ${AWS_BUCKET_NAME}

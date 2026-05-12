@@ -79,9 +79,9 @@ public class SharedContentService {
     // marks active to successful upload for given s3 key
     // evicts the cache that is getting updated
     @CacheEvict(value = "shared_content", key = "#slug")
-    public void markUploadComplete(String s3Key) {
+    public void markUploadComplete(String slug) {
 
-        SharedContent content = repository.findByS3Key(s3Key)
+        SharedContent content = repository.findByS3Key(slug)
                 .orElseThrow(ContentNotFoundException::new);
 
         if (content.getStatus() == SharedContentStatus.ACTIVE) return;

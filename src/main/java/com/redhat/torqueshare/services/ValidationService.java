@@ -28,7 +28,7 @@ public class ValidationService {
 
     @KafkaListener(topics = "torque-share-kafka", groupId = "validation-service")
     public void validate(UploadCompletedEvent event) {
-        log.info("Received upload completed event in validation-service");
+        log.info("Received upload completed event in validation-service with event Slug: {}", event.getSlug());
         try {
 
             process(event);
@@ -65,7 +65,7 @@ public class ValidationService {
             validateContentType(head, content);
 
             // SUCCESS
-            sharedContentService.markUploadComplete(content.getS3Key());
+            sharedContentService.markUploadComplete(content.getSlug());
             log.info("Validation successful: {}", content.getSlug());
 
         } catch (ContentSizeNotMatchingException | ContentTypeNotMatchingException e) {

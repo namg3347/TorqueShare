@@ -24,7 +24,7 @@ public class AnalyticsService {
 
     @KafkaListener(topics = "torque-share-kafka", groupId = "analytics-service")
     public void consume(UploadCompletedEvent event) {
-        log.info("Received upload completed event in analysis-service");
+        log.info("Received upload completed event in analysis-service with event SLug: {}", event.getSlug());
         //IDEMPOTENCY
         try {
             mongoTemplate.insert(
