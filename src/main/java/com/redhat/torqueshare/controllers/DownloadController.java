@@ -1,5 +1,6 @@
 package com.redhat.torqueshare.controllers;
 
+import com.redhat.torqueshare.dto.DownloadContentResponse;
 import com.redhat.torqueshare.entities.SharedContent;
 import com.redhat.torqueshare.enums.SharedContentStatus;
 import com.redhat.torqueshare.exceptions.ContentNotFoundException;
@@ -22,7 +23,7 @@ public class DownloadController {
     private final SharedContentService  sharedContentService;
 
     @GetMapping("/download/{slug}")
-    public ResponseEntity<String> downloadContent(@PathVariable String slug) {
+    public ResponseEntity<DownloadContentResponse> downloadContent(@PathVariable String slug) {
         SharedContent content =  sharedContentService.getSharedContent(slug);
 
         if (content.getStatus() != SharedContentStatus.ACTIVE) {
@@ -33,6 +34,9 @@ public class DownloadController {
         }
 
         String downloadUrl =  s3Service.generateDownloadUrl(content.getS3Key());
-        return new ResponseEntity<>(downloadUrl, HttpStatus.OK);
+        DownloadContentResponse response = new DownloadContentResponse(
+                downloadUrl,content.getMessage()
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

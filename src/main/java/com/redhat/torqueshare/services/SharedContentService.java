@@ -81,7 +81,7 @@ public class SharedContentService {
     @CacheEvict(value = "shared_content", key = "#slug")
     public void markUploadComplete(String slug) {
 
-        SharedContent content = repository.findByS3Key(slug)
+        SharedContent content = repository.findBySlug(slug)
                 .orElseThrow(ContentNotFoundException::new);
 
         if (content.getStatus() == SharedContentStatus.ACTIVE) return;

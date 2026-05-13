@@ -1,5 +1,8 @@
 package com.redhat.torqueshare.configs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -18,18 +21,37 @@ import java.time.Duration;
 public class RedisConfig {
 
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    public RedisCacheManager cacheManager(
+            RedisConnectionFactory connectionFactory
+    ) {
 
-        //redis serializer to convert pozo to json
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        objectMapper.registerModule(
+                new JavaTimeModule()
+        );
+
+        objectMapper.disable(
+                SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
+        );
+
+        objectMapper.activateDefaultTyping(
+                objectMapper.getPolymorphicTypeValidator(),
+                ObjectMapper.DefaultTyping.NON_FINAL
+        );
+
+        GenericJackson2JsonRedisSerializer serializer =
+                new GenericJackson2JsonRedisSerializer(objectMapper);
 
         RedisSerializationContext.SerializationPair<Object> pair =
-                RedisSerializationContext.SerializationPair.fromSerializer(serializer);
+                RedisSerializationContext.SerializationPair
+                        .fromSerializer(serializer);
 
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(pair)
-                .entryTtl(Duration.ofMinutes(10)) // enforced TTL
-                .disableCachingNullValues();
+        RedisCacheConfiguration config =
+                RedisCacheConfiguration.defaultCacheConfig()
+                        .serializeValuesWith(pair)
+                        .entryTtl(Duration.ofMinutes(10))//redis ttl
+                        .disableCachingNullValues();
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
