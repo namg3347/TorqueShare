@@ -57,7 +57,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
             response.setHeader(
                     "Access-Control-Allow-Origin",
-                    "http://localhost:5173"
+                    "https://torque-share.vercel.app"
             );
 
             ApiErrorResponse error =
@@ -78,5 +78,15 @@ public class RateLimitFilter extends OncePerRequestFilter {
         log.info("Token consumed");
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(
+            HttpServletRequest request
+    ) {
+
+        String path = request.getServletPath();
+
+        return path.equals("/health");
     }
 }

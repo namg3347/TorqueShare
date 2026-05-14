@@ -16,7 +16,7 @@ import java.time.Instant;
 @RestController
 @RequestMapping("/contents")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://torque-share.vercel.app")
 public class DownloadController {
 
     private final S3Service s3Service;
