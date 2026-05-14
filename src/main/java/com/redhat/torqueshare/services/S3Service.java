@@ -26,7 +26,17 @@ public class S3Service {
     private final S3Presigner s3Presigner;
     private final S3Properties properties;
     Set<String> allowed =
-            Set.of("image/png", "image/jpeg", "application/pdf","application/zip","application/octet-stream");
+            Set.of(
+                    "image/png",
+                    "image/jpeg",
+                    "image/jpg",
+                    "application/pdf",
+                    "application/zip",
+                    "video/mp4",
+                    "video/webm",
+                    "video/quicktime",
+                    "video/x-matroska"
+            );
 
 
     // generates a upload url using s3presigner where user will upload

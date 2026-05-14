@@ -19,6 +19,9 @@ public class UploadAnalytics {
     private long imageUploads; // all image uploads to s3
     private long imageSize; // sum of size of all image uploads
 
+    private long videoUploads; //all file uploads to s3
+    private long videoSize; // sum of size of all video uploads
+
     private long fileUploaded; // all file uploads to s3
     private long fileSize; // sum of size of all file uploads
 

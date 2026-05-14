@@ -61,6 +61,11 @@ public class AnalyticsService {
             update.inc("imageUploads", 1);
             update.inc("imageSize", size);
         }
+        //video upload update
+        if(type.startsWith("video/")) {
+            update.inc("videoUploads", 1);
+            update.inc("videoSize", size);
+        }
 
         //file upload update
         else if(type.startsWith("application/")) {

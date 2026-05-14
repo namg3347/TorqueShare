@@ -24,7 +24,17 @@ public class ValidationService {
     private final SharedContentRepository repository;
     private final SharedContentService  sharedContentService;
     private static final Set<String> ALLOWED_TYPES =
-            Set.of("image/png", "image/jpeg", "application/pdf","application/zip","application/octet-stream");
+            Set.of(
+                    "image/png",
+                    "image/jpeg",
+                    "image/jpg",
+                    "application/pdf",
+                    "application/zip",
+                    "video/mp4",
+                    "video/webm",
+                    "video/quicktime",
+                    "video/x-matroska"
+            );
 
     @KafkaListener(topics = "torque-share-kafka", groupId = "validation-service")
     public void validate(UploadCompletedEvent event) {

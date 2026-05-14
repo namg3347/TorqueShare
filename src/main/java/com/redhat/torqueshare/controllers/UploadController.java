@@ -3,12 +3,17 @@ package com.redhat.torqueshare.controllers;
 import com.redhat.torqueshare.dto.UploadContentRequest;
 import com.redhat.torqueshare.dto.UploadContentResponse;
 import com.redhat.torqueshare.entities.SharedContent;
+import com.redhat.torqueshare.exceptions.FileTooLargeException;
+import com.redhat.torqueshare.exceptions.FileTypeNotAllowedException;
 import com.redhat.torqueshare.services.S3Service;
 import com.redhat.torqueshare.services.SharedContentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/contents")
@@ -16,11 +21,37 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "https://torque-share.vercel.app")
 public class UploadController {
 
+    private static final long MAX_SIZE =
+            (long)500 * 1024 * 1024;
+
+    private static final Set<String> ALLOWED_TYPES =
+            Set.of(
+                    "image/png",
+                    "image/jpeg",
+                    "image/jpg",
+                    "application/pdf",
+                    "application/zip",
+                    "video/mp4",
+                    "video/webm",
+                    "video/quicktime",
+                    "video/x-matroska"
+            );
+
     private final S3Service s3Service;
     private final SharedContentService sharedContentService;
 
     @PostMapping("/upload")
-    public ResponseEntity<UploadContentResponse> uploadContent(@RequestBody UploadContentRequest request) {
+    public ResponseEntity<UploadContentResponse> uploadContent(
+            @Valid @RequestBody UploadContentRequest request)
+    {
+
+        if (request.getFileSize()> MAX_SIZE) {
+            throw new FileTooLargeException();
+        }
+
+        if (!ALLOWED_TYPES.contains(request.getContentType())) {
+            throw new FileTypeNotAllowedException();
+        }
 
         //save metadata in mongo
         SharedContent content = sharedContentService.saveSharedContent(request);
